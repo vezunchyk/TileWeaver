@@ -486,14 +486,14 @@ window.addEventListener('error', function(e){
   }
 
   function isoCell(c, r){ 
-    var hw = Math.floor(project.cellSize / 2);
-    var hh = Math.floor(project.cellSize / 4);
+    var hw = Math.floor(project.cellSize / 2) - 2;
+    var hh = Math.floor(project.cellSize / 4) - 1;
     return { x:(c-r)*hw, y:(c+r)*hh }; 
   }
   
   function invIso(x, y){
-    var hw = Math.floor(project.cellSize / 2);
-    var hh = Math.floor(project.cellSize / 4);
+    var hw = Math.floor(project.cellSize / 2) - 2;
+    var hh = Math.floor(project.cellSize / 4) - 1;
     var c = (x/hw + y/hh) / 2;
     var r = (y/hh - x/hw) / 2;
     return { c:c, r:r };
@@ -648,24 +648,28 @@ window.addEventListener('error', function(e){
         for(var c=minC;c<=maxC;c++){
           for(var rr=minR;rr<=maxR;rr++){
             var wc = cellToWorld(c,rr);
-            if(project.gridType === 'iso'){
-  var cw = project.cellSize;
-  var hw = Math.floor(cw / 2);
-  var hh = Math.floor(cw / 4);
-  if(!window.isoGridStamp || window.isoGridStampSize !== cw){
-    window.isoGridStamp = document.createElement('canvas');
-    window.isoGridStamp.width = cw; window.isoGridStamp.height = hh;
-    window.isoGridStampSize = cw;
-    var gsCtx = window.isoGridStamp.getContext('2d');
-    gsCtx.fillStyle = gridColor;
-    for(var i=0; i<hh; i++){
-      gsCtx.fillRect((hw-1)-(i*2), i, 2, 1);
-      if(i>0) gsCtx.fillRect(hw+(i*2)-1, i, 2, 1);
-    }
-  }
-  var bx = Math.round(wc.x - hw) - worldX0, by = Math.round(wc.y - hh) - worldY0;
-  offCtx.drawImage(window.isoGridStamp, bx, by);
-                                 }
+                        if(project.gridType === 'iso'){
+              var cw = project.cellSize;
+              var hw = Math.floor(cw / 2) - 2; // Синхронізуємо з тайлами
+              var hh = Math.floor(cw / 4) - 1;
+              if(!window.isoGridStamp || window.isoGridStampSize !== cw){
+                window.isoGridStamp = document.createElement('canvas');
+                // Робимо розмір штампа точно під логічну сітку
+                window.isoGridStamp.width = hw * 2; 
+                window.isoGridStamp.height = hh;
+                window.isoGridStampSize = cw;
+                var gsCtx = window.isoGridStamp.getContext('2d');
+                gsCtx.fillStyle = gridColor;
+                for(var i=0; i<hh; i++){
+                  gsCtx.fillRect((hw-1)-(i*2), i, 2, 1);
+                  if(i>0) gsCtx.fillRect(hw+(i*2)-1, i, 2, 1);
+                }
+              }
+              var bx = Math.round(wc.x - hw) - worldX0;
+              var by = Math.round(wc.y - hh) - worldY0;
+              offCtx.drawImage(window.isoGridStamp, bx, by);
+                        }
+            
             
           }
         }
