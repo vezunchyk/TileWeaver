@@ -649,34 +649,24 @@ window.addEventListener('error', function(e){
           for(var rr=minR;rr<=maxR;rr++){
             var wc = cellToWorld(c,rr);
                                     if(project.gridType === 'iso'){
-              var cw = project.cellSize; // 64
-              // Відв'язуємо розмір візуальної сітки від логічного кроку!
-              if(!window.isoGridStamp || window.isoGridStampSize !== cw){
-                window.isoGridStamp = document.createElement('canvas');
-                window.isoGridStamp.width = cw; // Рівно 64
-                window.isoGridStamp.height = Math.floor(cw / 2); // Рівно 32
-                window.isoGridStampSize = cw;
-                var gsCtx = window.isoGridStamp.getContext('2d');
-                gsCtx.fillStyle = gridColor;
-                
-                var halfW = Math.floor(cw / 2); // 32
-                var halfH = Math.floor(cw / 4); // 16
-                
-                // Малюємо ідеальний ромб 64x32
-                for(var i=0; i<halfH; i++){
-                  // Верхні грані
-                  gsCtx.fillRect(halfW - 1 - i*2, i, 2, 1);
-                  if(i > 0) gsCtx.fillRect(halfW - 1 + i*2, i, 2, 1);
-                  // Нижні грані
-                  gsCtx.fillRect(1 + i*2, halfH + i, 2, 1);
-                  if(i < halfH - 1) gsCtx.fillRect(cw - 3 - i*2, halfH + i, 2, 1);
-                }
-              }
-              // Центруємо сітку рівно так само, як центрується тайл 64x32
-              var bx = Math.round(wc.x - cw/2) - worldX0;
-              var by = Math.round(wc.y - Math.floor(cw/4)) - worldY0;
-              offCtx.drawImage(window.isoGridStamp, bx, by);
-                                    }
+  var cw = project.cellSize;
+  var hw = Math.floor(cw / 2) - 2;
+  var hh = Math.floor(cw / 4) - 1;
+  if(!window.isoGridStamp || window.isoGridStampSize !== cw){
+    window.isoGridStamp = document.createElement('canvas');
+    window.isoGridStamp.width = cw; window.isoGridStamp.height = hh;
+    window.isoGridStampSize = cw;
+    var gsCtx = window.isoGridStamp.getContext('2d');
+    gsCtx.fillStyle = gridColor;
+    for(var i=0; i<hh; i++){
+      gsCtx.fillRect((hw+1)-(i*2), i, 2, 1);
+      if(i>0) gsCtx.fillRect((hw+1)+(i*2), i, 2, 1);
+    }
+  }
+  var bx = Math.round(wc.x-(hw+1)) - worldX0, by = Math.round(wc.y-hh) - worldY0;
+  offCtx.drawImage(window.isoGridStamp, bx, by);
+  }
+                     
             
             
             
