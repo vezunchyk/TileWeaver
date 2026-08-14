@@ -486,14 +486,14 @@ window.addEventListener('error', function(e){
   }
 
   function isoCell(c, r){ 
-    var hw = Math.floor(project.cellSize / 2) - 2;
-    var hh = Math.floor(project.cellSize / 4) - 1;
+    var hw = Math.floor(project.cellSize / 2);
+    var hh = Math.floor(project.cellSize / 4);
     return { x:(c-r)*hw, y:(c+r)*hh }; 
   }
   
   function invIso(x, y){
-    var hw = Math.floor(project.cellSize / 2) - 2;
-    var hh = Math.floor(project.cellSize / 4) - 1;
+    var hw = Math.floor(project.cellSize / 2);
+    var hh = Math.floor(project.cellSize / 4);
     var c = (x/hw + y/hh) / 2;
     var r = (y/hh - x/hw) / 2;
     return { c:c, r:r };
@@ -649,26 +649,24 @@ window.addEventListener('error', function(e){
           for(var rr=minR;rr<=maxR;rr++){
             var wc = cellToWorld(c,rr);
             if(project.gridType === 'iso'){
-              var cw = project.cellSize;
-              var hw = Math.floor(cw / 2) - 2;
-              var hh = Math.floor(cw / 4) - 1;
-              if(!window.isoGridStamp || window.isoGridStampSize !== cw){
-                window.isoGridStamp = document.createElement('canvas');
-                window.isoGridStamp.width = cw; window.isoGridStamp.height = hh;
-                window.isoGridStampSize = cw;
-                var gsCtx = window.isoGridStamp.getContext('2d');
-                gsCtx.fillStyle = gridColor;
-                for(var i=0; i<hh; i++){
-                  gsCtx.fillRect((hw+1)-(i*2), i, 2, 1);
-                  if(i>0) gsCtx.fillRect((hw+1)+(i*2), i, 2, 1);
-                }
-              }
-              var bx = Math.round(wc.x-(hw+1)) - worldX0, by = Math.round(wc.y-hh) - worldY0;
-              offCtx.drawImage(window.isoGridStamp, bx, by);
-            } else {
-              var bx2 = Math.round(wc.x - project.cellSize/2) - worldX0, by2 = Math.round(wc.y - project.cellSize/2) - worldY0;
-              offCtx.strokeRect(bx2, by2, project.cellSize, project.cellSize);
-            }
+  var cw = project.cellSize;
+  var hw = Math.floor(cw / 2);
+  var hh = Math.floor(cw / 4);
+  if(!window.isoGridStamp || window.isoGridStampSize !== cw){
+    window.isoGridStamp = document.createElement('canvas');
+    window.isoGridStamp.width = cw; window.isoGridStamp.height = hh;
+    window.isoGridStampSize = cw;
+    var gsCtx = window.isoGridStamp.getContext('2d');
+    gsCtx.fillStyle = gridColor;
+    for(var i=0; i<hh; i++){
+      gsCtx.fillRect((hw-1)-(i*2), i, 2, 1);
+      if(i>0) gsCtx.fillRect(hw+(i*2)-1, i, 2, 1);
+    }
+  }
+  var bx = Math.round(wc.x - hw) - worldX0, by = Math.round(wc.y - hh) - worldY0;
+  offCtx.drawImage(window.isoGridStamp, bx, by);
+                                 }
+            
           }
         }
       }
