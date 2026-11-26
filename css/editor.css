@@ -1,0 +1,265 @@
+  :root{
+    --bg:#12140f; --panel:#1b1f16; --panel2:#20241a; --line:#3a3f2e;
+    --text:#d8d4c0; --dim:#8a8a72; --rust:#a6572c; --amber:#c9a227; --danger:#7a2e2e; --green:#4a7a3a;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{ margin:0; padding:0; height:100%; overflow:hidden; background:var(--bg); color:var(--text);
+    font-family:"JetBrains Mono","SF Mono",Consolas,monospace; font-size:13px; user-select:none; overscroll-behavior:none; }
+  #app{ display:flex; flex-direction:column; height:100%; }
+  /* РАНІШЕ був position:fixed зверху всього екрана — це ПЕРЕКРИВАЛО кнопки під ним
+     (стрічку папок, тулбар), бо fixed-елементи не займають місце в потоці, на них просто
+     накладається решта контенту. Тепер це звичайний блок на самому верху #app (який і так
+     display:flex;flex-direction:column) — коли банер зʼявляється, він просто ШТОВХАЄ HUD і
+     все нижче вниз, нічого не ховаючи. flex-shrink:0, щоб canvas не "з'їв" його висоту. */
+  #errBanner{ display:none; background:var(--danger); color:#fff; font-size:11px; padding:8px 34px 8px 10px; flex-shrink:0; position:relative; }
+  #errBanner .err-close{ position:absolute; top:4px; right:4px; width:26px; height:26px; background:rgba(255,255,255,0.15); border:none; color:#fff; border-radius:3px; font-size:15px; line-height:26px; padding:0; }
+
+  #hud{ display:flex; align-items:center; justify-content:space-between; padding:8px 10px; background:var(--panel); border-bottom:1px solid var(--line); flex-shrink:0; }
+  #hud .title{ color:var(--amber); letter-spacing:1px; font-weight:700; font-size:12px; }
+  #hud .right{ display:flex; align-items:center; gap:8px; }
+  #langBtn{ background:var(--panel2); color:var(--text); border:1px solid var(--line); padding:4px 8px; border-radius:2px; font-family:inherit; font-size:11px; }
+  #projName{ color:var(--dim); font-size:11px; }
+
+  #palette{ display:flex; gap:6px; padding:8px; background:var(--panel2); border-bottom:1px solid var(--line); overflow-x:auto; flex-shrink:0; -webkit-overflow-scrolling:touch; }
+  #tileFolders{ display:flex; gap:6px; padding:6px 8px; background:var(--panel); border-bottom:1px solid var(--line); overflow-x:auto; flex-shrink:0; -webkit-overflow-scrolling:touch; }
+  #tileFolders button{ background:var(--panel2); color:var(--text-dim,#999); border:1px solid var(--line); border-radius:4px; padding:5px 10px; font-size:12px; white-space:nowrap; flex-shrink:0; }
+  #tileFolders button.active{ background:var(--amber); color:#111; border-color:var(--amber); }
+  #tileFolders button.add-folder-btn{ background:transparent; border-style:dashed; color:var(--text-dim,#999); }
+  #folderCrumbs{ display:flex; align-items:center; gap:2px; padding:4px 8px 0; background:var(--panel); overflow-x:auto; flex-shrink:0; }
+  #folderCrumbs button{ background:transparent; border:none; color:var(--amber); font-size:12px; padding:4px 6px; white-space:nowrap; flex-shrink:0; }
+  #folderCrumbs button.active{ color:var(--text); font-weight:bold; }
+  .folder-fixed{ position:sticky; left:0; z-index:2; display:flex; gap:6px; flex-shrink:0; padding-right:6px; background:var(--panel); border-right:1px solid var(--line); }
+  .grid-extra-row{ display:flex; align-items:center; gap:10px; margin:12px 0; color:var(--text); }
+  .grid-extra-row input[type=checkbox]{ width:20px; height:20px; }
+  .grid-extra-row input[type=color]{ width:48px; height:32px; padding:0; border:1px solid var(--line); background:none; }
+  #folderCrumbs span{ color:var(--dim,#8a8a72); flex-shrink:0; }
+  #tileFolders button.nav-folder-btn{ background:transparent; color:var(--amber); border-color:var(--amber); }
+  #tileFolders button.move-mode-btn{ background:transparent; border-color:var(--rust); color:var(--rust); font-weight:bold; }
+  #moveModeBar{ display:none; align-items:center; gap:8px; padding:6px 10px; background:var(--panel2); border-bottom:1px solid var(--line); }
+  #moveModeBar button{ background:var(--panel); color:var(--text); border:1px solid var(--line); border-radius:4px; padding:6px 10px; font-size:12px; font-family:inherit; }
+  #moveModeCount{ font-size:11px; color:var(--amber); flex:1; }
+  /* Чекбокс поверх тайла в режимі вибору: порожній квадратик у кутку, заповнюється "✓",
+     коли тайл вибраний. .tile-btn вже має власне позиціонування мініатюри всередині —
+     додаємо position:relative ЛИШЕ коли активний режим, щоб не впливати на звичайний вигляд. */
+  .tile-btn.move-mode{ position:relative; }
+  .tile-btn.move-mode::after{ content:''; position:absolute; top:2px; right:2px; width:16px; height:16px; border:2px solid var(--amber); border-radius:3px; background:rgba(18,20,15,0.75); box-sizing:border-box; }
+  .tile-btn.move-mode.move-selected::after{ content:'✓'; background:var(--amber); color:#12140f; font-size:12px; line-height:12px; font-weight:bold; text-align:center; }
+  .move-dest-btn{ display:block; width:100%; text-align:left; margin-bottom:4px; padding:9px 10px; background:var(--panel2); color:var(--text); border:1px solid var(--line); border-radius:4px; font-family:inherit; font-size:13px; }
+  #palette .tile-btn{ width:48px; height:48px; flex-shrink:0; border-radius:3px; border:2px solid var(--line); background:#0d0f0a center/contain no-repeat; position:relative; opacity:0.85; }
+  #palette .tile-btn.active{ border-color:var(--amber); opacity:1; box-shadow:0 0 6px rgba(201,162,39,0.5); }
+  #palette .add-btn{ width:48px; height:48px; flex-shrink:0; border-radius:3px; border:2px dashed var(--dim); display:flex; align-items:center; justify-content:center; color:var(--dim); font-size:22px; background:transparent; }
+
+  #layersStrip{ display:flex; gap:6px; padding:8px; background:var(--panel2); border-top:1px solid var(--line); overflow-x:auto; flex-shrink:0; -webkit-overflow-scrolling:touch; }
+  #layersStrip .layer-btn{ position:relative; min-width:56px; height:48px; flex-shrink:0; border-radius:3px; border:2px solid var(--line); background:var(--panel); color:var(--text); font-size:10px; padding:2px 4px; opacity:0.85; touch-action:manipulation; }
+  #layersStrip .layer-btn.active{ border-color:var(--amber); opacity:1; box-shadow:0 0 6px rgba(201,162,39,0.5); }
+  #layersStrip .layer-btn.hidden-layer{ opacity:0.4; }
+  #layersStrip .layer-btn .lv-eye{ position:absolute; top:2px; right:3px; font-size:10px; }
+  #layersStrip .layer-btn .lv-lock{ position:absolute; top:2px; left:3px; font-size:9px; }
+  #layersStrip .add-btn{ width:40px; height:48px; flex-shrink:0; border-radius:3px; border:2px dashed var(--dim); display:flex; align-items:center; justify-content:center; color:var(--dim); font-size:20px; background:transparent; }
+  #layerPopup{ position:fixed; display:none; background:var(--panel); border:1px solid var(--amber); border-radius:4px; padding:4px; z-index:70; }
+  #layerPopup button{ display:block; width:100%; background:var(--panel2); color:var(--text); border:1px solid var(--line); border-radius:2px; padding:7px 12px; margin:2px 0; font-family:inherit; font-size:12px; white-space:nowrap; text-align:left; }
+  #layerPopup button.del{ background:var(--danger); color:#fff; }
+
+  #canvasWrap{ flex:1; position:relative; overflow:hidden; touch-action:none; background:radial-gradient(circle at 50% 40%, #171a11 0%, #101208 100%); }
+  #minimapCanvas{ position:absolute; left:8px; top:8px; width:72px; height:72px; background:rgba(10,12,8,0.85); border:1px solid var(--amber); border-radius:4px; z-index:15; touch-action:none; }
+  .autotile-cell{ aspect-ratio:1; background:var(--panel2); border:1px solid var(--line); border-radius:3px; display:flex; align-items:center; justify-content:center; background-size:cover; background-position:center; font-size:18px; color:var(--text-dim,#666); cursor:pointer; }
+  .autotile-cell.corner{ border-color:var(--amber); }
+  .autotile-cell.edge{ border-color:var(--green,#4a9); }
+  .autotile-cell.center{ cursor:default; opacity:0.3; }
+  .autotile-tile-thumb{ width:52px; height:52px; background-size:cover; background-position:center; border:1px solid var(--line); border-radius:3px; cursor:pointer; }
+  .autotile-group-row{ display:flex; align-items:center; gap:8px; padding:8px; background:var(--panel2); border-radius:4px; }
+  .autotile-group-row span{ flex:1; }
+  #mapCanvas{ position:absolute; top:0; left:0; image-rendering:pixelated; image-rendering:crisp-edges; }
+  #emptyState{ position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); text-align:center; color:var(--dim); max-width:260px; line-height:1.5; font-size:12px; }
+  #emptyState .amber{ color:var(--amber); }
+
+  #selPanel{ position:absolute; display:none; background:var(--panel); border:1px solid var(--amber); border-radius:4px; padding:4px; z-index:20; width:max-content; max-width:90vw; }
+  #selPanel button{ background:var(--panel2); color:var(--text); border:1px solid var(--line); border-radius:2px; padding:5px 7px; margin:0; font-family:inherit; font-size:12px; }
+  /* ---------- Панель дій — фіксована сітка іконок 3×5, решта гортається ----------
+     Кардинальна переробка на прохання користувача: жодних текстових підписів у самій панелі
+     (тільки іконка + title-тултип), фіксований розмір вікна незалежно від того, скільки дій
+     насправді доступно (3 стовпці по 42px, висота рівно на 5 рядів — решта під скрол), і
+     порядок значків можна перелаштувати самому через Меню → Налаштування панелі. */
+  .sel-grid{ display:grid; grid-template-columns:repeat(3, var(--selBtn,42px)); grid-auto-rows:var(--selBtn,42px); gap:2px; max-height:calc(5*var(--selBtn,42px) + 4*2px); overflow-y:auto; overflow-x:hidden; touch-action:pan-y; overscroll-behavior:contain; -webkit-overflow-scrolling:touch; }
+  /* touch-action НЕ успадковується від контейнера до дітей автоматично (на відміну від
+     звичайних CSS-властивостей) — сама лише .sel-grid{touch-action:pan-y} не гарантує, що
+     дотик, який ПОЧАВСЯ саме на кнопці всередині, вважатиметься pan-y в усіх браузерах: у
+     кнопки власне обчислене значення (типово auto). Тому дублюємо pan-y явно на самих
+     кнопках, а не лише на контейнері — це і є причина, чому "все одно не свайпає". */
+  #selPanel .sel-grid button{ width:var(--selBtn,42px); height:var(--selBtn,42px); padding:0; font-size:calc(var(--selBtn,42px)*0.45); display:flex; align-items:center; justify-content:center; line-height:1; touch-action:pan-y; }
+  /* Кнопка "око" — єдина виключена зі скролу: вона перетягує ВСЮ панель (утримання), тому їй
+     навпаки touch-action:none, щоб нативний скрол не боровся з нашим JS-драгом. */
+  #selPanel button[data-act="panelEye"]{ touch-action:none; }
+  #selPanel button[data-act="panelEye"]{ touch-action:none; }
+  #selPanel button.anim-off{ opacity:.45; }
+  .po-row{ display:flex; align-items:center; gap:6px; padding:5px 2px; border-bottom:1px solid var(--line); }
+  .po-row .po-ic{ font-size:18px; width:24px; text-align:center; flex-shrink:0; }
+  .po-row .po-name{ flex:1; font-size:12px; }
+  .po-row button{ background:var(--panel2); color:var(--text); border:1px solid var(--line); border-radius:2px; padding:3px 8px; font-family:inherit; font-size:12px; flex-shrink:0; }
+  .po-row button:disabled{ opacity:0.3; }
+  .po-row button.del{ background:var(--danger); color:#fff; }
+  .po-row button.add{ background:var(--green); color:#fff; }
+  #selPanel button.del{ background:var(--danger); color:#fff; padding:6px 10px; min-width:0; }
+  #selPanel .z-val{ color:var(--amber); font-size:11px; padding:0 2px; }
+  .resize-handle{ position:absolute; width:22px; height:22px; margin:-11px; background:transparent; border:3px solid var(--amber); border-radius:50%; z-index:19; touch-action:none; box-shadow:0 0 0 1.5px rgba(0,0,0,0.65); }
+  #shadowPanel{ position:absolute; left:6px; right:6px; bottom:6px; z-index:24; background:rgba(20,20,12,0.96); border:1px solid var(--line); border-radius:10px; padding:8px; color:var(--text); font-size:13px; max-height:48%; overflow:auto; }
+  #shadowPanel .shp-head{ color:var(--amber); margin-bottom:6px; }
+  #shadowPanel .shp-row{ display:flex; gap:6px; align-items:center; flex-wrap:wrap; margin:6px 0; }
+  #shadowPanel button{ padding:8px 10px; background:var(--panel); border:1px solid var(--line); color:var(--text); border-radius:6px; font-size:13px; }
+  #shadowPanel button.on{ background:var(--rust); color:#fff; }
+  #shadowPanel button.ok{ background:var(--green); color:#fff; flex:1; }
+  .hs-head{ font-size:12px; color:var(--amber); margin-bottom:8px; }
+  .hs-btn{ display:block; width:100%; text-align:left; padding:12px; margin:6px 0; background:var(--panel2); color:var(--text); border:1px solid var(--line); border-radius:4px; font-family:inherit; font-size:14px; }
+  .hs-btn.green{ background:var(--green); color:#fff; } .hs-btn.red{ background:#8a3030; color:#fff; } .hs-btn.mixed{ background:var(--rust); color:#fff; } .hs-btn.danger{ border-color:#8a3030; }
+  .po-size{ font-size:12px; color:var(--text); margin-bottom:8px; } .po-size input{ width:100%; }
+  .po-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:6px; margin-top:6px; }
+  .po-cell{ display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; min-height:60px; padding:4px 2px; background:var(--panel2); color:var(--text); border:1px solid var(--line); border-radius:4px; font-family:inherit; }
+  .po-cell .pi{ font-size:22px; } .po-cell .pn{ font-size:9px; line-height:1.1; text-align:center; max-width:100%; overflow:hidden; }
+  .po-cell.pick{ border-color:var(--amber); box-shadow:0 0 0 2px var(--amber); }
+  .po-cell.po-end{ border-style:dashed; opacity:0.85; }
+  #shadowPanel select{ background:var(--panel); color:var(--text); border:1px solid var(--line); padding:8px; border-radius:6px; font-size:13px; min-width:0; }
+  #shadowPanel .shp-sl{ display:block; margin:6px 0; }
+  #shadowPanel .shp-sl input{ width:100%; }
+  .resize-handle.edge-handle{ width:16px; height:16px; margin:-8px; border-radius:4px; }
+  .resize-handle.ratio-handle{ width:34px; height:34px; margin:-17px; background:rgba(20,20,12,0.85); align-items:center; justify-content:center; font-size:18px; }
+  .resize-handle.rot-handle{ border-color:var(--green); }
+  .resize-handle.skew-handle{ border-color:var(--rust); }
+
+  #modeBar{ display:none; gap:6px; padding:6px 10px; background:var(--panel2); border-bottom:1px solid var(--line); overflow-x:auto; }
+  #modeBar button{ flex-shrink:0; background:var(--panel); color:var(--text); border:1px solid var(--line); border-radius:2px; padding:7px 10px; font-family:inherit; font-size:10px; }
+  #modeBar button.active{ background:var(--green); color:#fff; }
+
+  #houseViewBar{ align-items:center; gap:6px; padding:6px 10px; background:var(--panel2); border-bottom:1px solid var(--line); overflow-x:auto; }
+  #houseViewBar button{ flex-shrink:0; background:var(--panel); color:var(--text); border:1px solid var(--line); border-radius:2px; padding:7px 10px; font-family:inherit; font-size:11px; }
+  #houseViewBar .hv-label{ flex-shrink:0; font-size:11px; color:var(--amber); padding:0 4px; }
+  #houseViewBar .hv-exit{ background:var(--rust); color:#fff; border:none; margin-left:auto; }
+
+  #cloneLineBar{ display:none; align-items:center; gap:4px; padding:6px 10px; background:var(--panel2); border-bottom:1px solid var(--line); overflow-x:auto; }
+  #cloneLineBar button.dir{ flex-shrink:0; width:30px; height:30px; background:var(--panel); color:var(--text); border:1px solid var(--line); border-radius:3px; font-size:13px; }
+  #cloneLineBar button.dir.active{ background:var(--amber); color:#12140f; }
+  #cloneLineBar input{ width:44px; background:var(--panel); border:1px solid var(--line); color:var(--text); padding:5px; font-family:inherit; font-size:12px; border-radius:2px; }
+  #cloneLineBar .apply{ background:var(--rust); color:#fff; border:none; padding:6px 10px; border-radius:2px; font-family:inherit; font-size:11px; }
+  #cloneLineBar .cancel{ background:var(--panel); border:1px solid var(--line); color:var(--text); padding:6px 8px; border-radius:2px; font-family:inherit; font-size:11px; }
+
+  #toolbar{ display:grid; grid-template-columns:repeat(10,1fr); gap:1px; background:var(--line); border-top:1px solid var(--line); flex-shrink:0; }
+  #toolbar button{ background:var(--panel); color:var(--text); border:none; padding:10px 2px; font-family:inherit; font-size:9px; display:flex; flex-direction:column; align-items:center; gap:3px; }
+  #toolbar button .ic{ font-size:19px; }
+  /* Іконки замість підписів: назва інструмента лишається в DOM (для i18n/скрінрідерів),
+     але не показується — значення значка тепер пояснює кнопка "❓" (довідка). */
+  #toolbar button span:not(.ic){ display:none; }
+  #toolbar button.active{ background:var(--rust); color:#fff; }
+  #helpModal{ position:fixed; inset:0; background:rgba(0,0,0,0.55); z-index:200; align-items:center; justify-content:center; }
+  #helpModal .hm-box{ background:var(--panel); border:1px solid var(--line); border-radius:4px; width:min(320px,90vw); max-height:80vh; overflow-y:auto; }
+  #helpModal .hm-head{ display:flex; justify-content:space-between; align-items:center; padding:10px 12px; border-bottom:1px solid var(--line); font-size:13px; }
+  #helpModal .hm-head button{ background:none; border:none; color:var(--text); font-size:16px; padding:2px 6px; }
+  #helpModal .hm-list{ padding:6px 0; }
+  #helpModal .hm-item{ display:flex; align-items:center; gap:12px; padding:9px 14px; font-size:12px; border-bottom:1px solid var(--line); }
+  #helpModal .hm-item:last-child{ border-bottom:none; }
+  #helpModal .hm-item .ic{ font-size:18px; width:22px; text-align:center; flex-shrink:0; }
+
+  #subbar{ display:flex; align-items:center; gap:6px; padding:6px 10px; background:var(--panel); border-top:1px solid var(--line); flex-shrink:0; font-size:11px; overflow-x:auto; -webkit-overflow-scrolling:touch; }
+  #subbar button{ flex-shrink:0; background:var(--panel2); color:var(--text); border:1px solid var(--line); padding:5px 9px; font-family:inherit; font-size:12px; border-radius:2px; }
+  #subbar button.active{ background:var(--rust); color:#fff; }
+
+  .modal-bg{ position:fixed; inset:0; background:rgba(0,0,0,0.7); display:flex; align-items:center; justify-content:center; z-index:50; padding:20px; }
+  .modal{ background:var(--panel); border:1px solid var(--line); border-radius:4px; padding:16px; width:100%; max-width:340px; max-height:80vh; overflow-y:auto; }
+  .modal h3{ margin:0 0 12px 0; color:var(--amber); font-size:13px; letter-spacing:0.5px; }
+  .modal label{ display:block; font-size:11px; color:var(--dim); margin-bottom:3px; margin-top:10px; }
+  .modal input[type=text], .modal input[type=number]{ width:100%; background:var(--panel2); border:1px solid var(--line); color:var(--text); padding:7px; font-family:inherit; font-size:13px; border-radius:2px; }
+  .modal .row{ display:flex; gap:8px; }
+  .modal .row > div{ flex:1; }
+  .modal .actions{ display:flex; gap:8px; margin-top:16px; }
+  .modal .actions button{ flex:1; padding:9px; border:none; border-radius:2px; font-family:inherit; font-size:12px; }
+  .btn-cancel{ background:var(--panel2); color:var(--text); border:1px solid var(--line) !important; }
+  .btn-ok{ background:var(--rust); color:#fff; }
+  input[type=file]{ display:none; }
+  #toast{ position:fixed; bottom:70px; left:50%; transform:translateX(-50%); background:var(--amber); color:#12140f; padding:8px 14px; border-radius:3px; font-size:12px; opacity:0; pointer-events:none; transition:opacity .25s; z-index:60; font-weight:600; }
+  #toast.show{ opacity:1; }
+
+  .proj-item{ display:flex; align-items:center; gap:6px; padding:8px; border:1px solid var(--line); border-radius:3px; margin-bottom:6px; }
+  .proj-item .pname{ flex:1; font-size:12px; }
+  .proj-item .pdate{ font-size:9px; color:var(--dim); }
+  .proj-item button{ background:var(--panel2); border:1px solid var(--line); color:var(--text); border-radius:2px; padding:5px 7px; font-size:11px; font-family:inherit; }
+
+  /* bottom sheet menu */
+  .sheet-bg{ position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:55; display:none; }
+  .sheet{ position:absolute; bottom:0; left:0; right:0; background:var(--panel); border-top:1px solid var(--line); border-radius:10px 10px 0 0; padding:14px; max-height:75vh; overflow-y:auto; }
+  .sheet-item{ display:flex; align-items:center; gap:10px; padding:12px 6px; border-bottom:1px solid var(--line); font-size:13px; }
+  .sheet-item .ic{ font-size:18px; width:22px; text-align:center; }
+  .sheet-item:last-child{ border-bottom:none; }
+
+  /* spritesheet modal */
+  #spriteCanvasWrap{ position:relative; overflow:auto; max-height:40vh; border:1px solid var(--line); margin-top:8px; }
+  #spriteCanvas{ display:block; touch-action:none; image-rendering:pixelated; image-rendering:crisp-edges; }
+  #spriteSel{ position:absolute; border:2px solid var(--amber); background:rgba(201,162,39,0.25); pointer-events:none; display:none; }
+  .tab-row{ display:flex; gap:6px; margin-top:8px; }
+  .tab-row button{ flex:1; padding:7px; background:var(--panel2); color:var(--text); border:1px solid var(--line); border-radius:2px; font-family:inherit; font-size:11px; }
+  .tab-row button.active{ background:var(--green); color:#fff; }
+  .grid-type-row{ display:flex; gap:6px; margin-top:6px; }
+  .grid-type-row button{ flex:1; padding:8px 2px; background:var(--panel2); color:var(--text); border:1px solid var(--line); border-radius:2px; font-family:inherit; font-size:10px; }
+  .grid-type-row button.active{ background:var(--rust); color:#fff; }
+  /* .btn-row — та сама візуальна "стрічка кнопок", але БЕЗ глобального JS-обробника activе-
+     стану, який висить на .grid-type-row (той навмисно керує ЛИШЕ вибором типу сітки). Раніше
+     кнопки прев'ю/кроку/pivot-пресетів/edge-anchor помилково теж мали клас "grid-type-row" —
+     і querySelectorAll('.grid-type-row button') у Меню сітки чіпав і ЇХ теж: клік по будь-якій
+     з них знімав active з РЕАЛЬНОЇ кнопки типу сітки будь-де на сторінці (навіть коли Меню
+     сітки взагалі не відкрите). Звідси й "прив'язка не працює на новій сітці" — стан вибору
+     сітки міг непомітно збитись від кліку по геть незв'язаній кнопці. */
+  .btn-row{ display:flex; gap:6px; margin-top:6px; }
+  .btn-row button{ flex:1; padding:8px 2px; background:var(--panel2); color:var(--text); border:1px solid var(--line); border-radius:2px; font-family:inherit; font-size:10px; }
+  .btn-row button.active{ background:var(--rust); color:#fff; }
+
+  /* ---------- Повноекранний редактор анімації (frame-mark) ---------- */
+  #fmScreen{ display:flex; flex-direction:column; height:100%; width:100%; background:var(--bg); }
+  #fmHeader{ display:flex; align-items:center; justify-content:space-between; padding:10px 12px; background:var(--panel); border-bottom:1px solid var(--line); flex-shrink:0; }
+  #fmHeader .fm-title{ color:var(--amber); font-size:12px; font-weight:700; letter-spacing:0.5px; }
+  #fmBack{ background:transparent; border:none; color:var(--text); font-size:20px; padding:4px 10px; line-height:1; }
+  #fmCanvasWrap{ flex:1; position:relative; overflow:hidden; touch-action:none; min-height:0;
+    background-image:linear-gradient(45deg,#242819 25%,transparent 25%),linear-gradient(-45deg,#242819 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#242819 75%),linear-gradient(-45deg,transparent 75%,#242819 75%);
+    background-size:20px 20px; background-position:0 0,0 10px,10px -10px,-10px 0px; background-color:#191c12; }
+  #frameMarkCanvas{ position:absolute; top:0; left:0; image-rendering:pixelated; touch-action:none; }
+  #fmZoomBar{ display:flex; align-items:center; justify-content:center; gap:6px; padding:6px 8px; background:var(--panel2); border-top:1px solid var(--line); flex-shrink:0; flex-wrap:wrap; }
+  #fmZoomBar button{ background:var(--panel); color:var(--text); border:1px solid var(--line); border-radius:2px; padding:7px 10px; font-family:inherit; font-size:12px; }
+  #fmZoomLabel{ font-size:11px; color:var(--dim); min-width:38px; text-align:center; }
+  #fmTimeline{ display:flex; gap:6px; padding:8px; background:var(--panel2); border-top:1px solid var(--line); overflow-x:auto; flex-shrink:0; -webkit-overflow-scrolling:touch; }
+  .fm-chip{ position:relative; flex-shrink:0; min-width:44px; height:40px; border-radius:3px; border:2px solid var(--line); background:var(--panel); color:var(--text); font-size:10px; padding:2px 6px; opacity:0.8; }
+  .fm-chip.active{ border-color:var(--amber); opacity:1; box-shadow:0 0 6px rgba(201,162,39,0.5); }
+  .fm-chip .fm-chip-n{ display:block; font-size:12px; color:var(--amber); }
+  .fm-chip .fm-chip-w{ display:block; font-size:9px; color:var(--dim); }
+  .fm-chip.active .fm-chip-w{ color:var(--text); }
+  #fmAddFrame{ width:40px; height:40px; flex-shrink:0; border-radius:3px; border:2px dashed var(--dim); display:flex; align-items:center; justify-content:center; color:var(--dim); font-size:18px; background:transparent; }
+  #fmInfoBar{ display:flex; align-items:center; gap:8px; justify-content:space-between; padding:8px 12px; background:var(--panel); border-top:1px solid var(--line); font-size:11px; color:var(--dim); flex-shrink:0; flex-wrap:wrap; }
+  #fmInfoBar .fm-info-group{ display:flex; align-items:center; gap:4px; }
+  #fmInfoBar b{ color:var(--text); font-weight:600; }
+  #fmInfoBar button.fm-edit{ background:var(--panel2); color:var(--dim); border:1px solid var(--line); border-radius:2px; padding:3px 6px; font-size:10px; }
+  #fmDelFrame{ background:var(--danger); color:#fff; border:none; border-radius:2px; padding:6px 10px; font-size:11px; flex-shrink:0; }
+
+  /* ---------- Панель точного розміщення текстури (🎯) ---------- */
+  #precisionPanel{ position:fixed; left:0; right:0; bottom:0; background:var(--panel); border-top:1px solid var(--amber); z-index:65; padding:10px 12px calc(10px + env(safe-area-inset-bottom,0px)); box-shadow:0 -4px 14px rgba(0,0,0,0.45); }
+  #precisionPanel .prec-head{ display:flex; align-items:center; justify-content:space-between; gap:8px; }
+  #precisionPanel .prec-title{ font-size:11px; color:var(--amber); }
+  #precClose{ background:transparent; border:none; color:var(--dim); font-size:16px; padding:2px 6px; }
+  #precModeMagnet, #precModePixel{ flex:1; padding:8px 2px; background:var(--panel2); color:var(--text); border:1px solid var(--line); font-family:inherit; font-size:11px; }
+  #precModeMagnet.active, #precModePixel.active{ background:var(--rust); color:#fff; }
+  #precModeMagnet{ border-radius:2px 0 0 2px; }
+  #precModePixel{ border-radius:0 2px 2px 0; border-left:none; }
+  #precStepRow{ margin-top:8px; }
+  .prec-step.active{ background:var(--green); color:#fff; }
+  .prec-body{ display:flex; align-items:center; justify-content:space-between; gap:16px; margin-top:10px; }
+  .prec-dpad{ display:grid; grid-template-areas:". u ." "l c r" ". d ."; grid-template-columns:44px 44px 44px; grid-template-rows:44px 44px 44px; gap:4px; }
+  .prec-btn{ background:var(--panel2); color:var(--amber); border:1px solid var(--line); border-radius:4px; font-size:18px; touch-action:none; }
+  .prec-btn:active{ background:var(--rust); color:#fff; }
+  .prec-center{ grid-area:c; display:flex; align-items:center; justify-content:center; font-size:16px; opacity:0.7; }
+  .prec-coords{ font-size:12px; color:var(--dim); display:flex; flex-direction:column; gap:6px; white-space:nowrap; }
+  .prec-coords b{ color:var(--amber); }
+
+  .pivot-nudge-btn{ background:var(--panel2); color:var(--amber); border:1px solid var(--line); border-radius:3px; font-size:14px; padding:4px 10px; touch-action:none; font-family:inherit; }
+  .pivot-nudge-btn:active{ background:var(--rust); color:#fff; }
+
+  /* ---------- Міні-превю розміщення ВИБРАНОГО кадру всередині редактора анімації ---------- */
+  #fmPrevPanel{ position:absolute; top:8px; right:8px; z-index:20; background:rgba(18,20,15,0.72); border:1px solid rgba(201,162,39,0.35); border-radius:4px; padding:4px; touch-action:none; }
+  #fmPrevCanvas{ display:block; touch-action:none; }
+  .fm-prev-tools{ display:flex; align-items:center; justify-content:space-between; gap:4px; margin-top:3px; }
+  .fm-prev-size{ display:flex; gap:2px; }
+  #fmPrevPanel button{ background:var(--panel2); color:var(--text); border:1px solid var(--line); border-radius:2px; font-size:10px; padding:2px 6px; line-height:1.3; }
+  .fm-prev-label{ font-size:9px; color:var(--dim); white-space:nowrap; }
