@@ -3,9 +3,9 @@
 
 
   // ---------- palette ----------
-  var paletteEl = document.getElementById('palette');
-  var addTileBtn = document.getElementById('addTileBtn');
-  var tileFileInput = document.getElementById('tileFileInput');
+  paletteEl = document.getElementById('palette');
+  addTileBtn = document.getElementById('addTileBtn');
+  tileFileInput = document.getElementById('tileFileInput');
   addTileBtn.addEventListener('click', function(){ tileFileInput.click(); });
   tileFileInput.addEventListener('change', function(e){
     var files = Array.from(e.target.files);
@@ -21,20 +21,20 @@
     });
     tileFileInput.value = '';
   });
-  var groundFracCache = {};
+  groundFracCache = {};
 
   // ---------- Папки текстур ----------
-  var tileFoldersEl = document.getElementById('tileFolders');
-  var folderMenuModal = document.getElementById('folderMenuModal');
-  var folderMenuTargetId = null;
+  tileFoldersEl = document.getElementById('tileFolders');
+  folderMenuModal = document.getElementById('folderMenuModal');
+  folderMenuTargetId = null;
   // ---------- Режим переміщення текстур між папками ----------
   // "⇄" у стрічці папок вмикає режим вибору: тап по тайлу більше не ставить його активним
   // для малювання, а ставить/знімає галочку. Поки режим активний, замінюємо звичайну
   // навігацію папками на панель "Скасувати / Вибрано N / Перемістити" — вибір діє лише в
   // МЕЖАХ поточної папки (щоб перемістити з кількох папок одразу — заходь і вибирай у
   // кожній по черзі, це і простіше, і безпечніше за "вибір крізь усе дерево папок").
-  var moveMode = false;
-  var moveSelected = {};
+  moveMode = false;
+  moveSelected = {};
   document.getElementById('moveModeCancel').addEventListener('click', exitMoveMode);
   document.getElementById('moveModeGo').addEventListener('click', function(){
     var ids = Object.keys(moveSelected);
@@ -99,8 +99,8 @@
   });
 
   // ---------- Теги (ярлики) + База даних груп ----------
-  var tagTarget = null; // {kind:'placement'|'tile'|'folder', id}
-  var tagModalEl = document.getElementById('tagModal'), tagInputEl = document.getElementById('tagInput');
+  tagTarget = null; // {kind:'placement'|'tile'|'folder', id}
+  tagModalEl = document.getElementById('tagModal'), tagInputEl = document.getElementById('tagInput');
   document.getElementById('tagOk').addEventListener('click', function(){ applyTag(tagInputEl.value); });
   document.getElementById('tagClear').addEventListener('click', function(){ applyTag(''); });
   document.getElementById('tagCancel').addEventListener('click', closeTagModal);
@@ -110,7 +110,7 @@
   document.getElementById('folderMenuTag').addEventListener('click', function(){ openTagModal('folder', folderMenuTargetId); });
 
   // База даних: таблиця існуючих груп (будинків) — назва, координати центру, кнопка «Перенести»
-  var dbRows = [];
+  dbRows = [];
   document.getElementById('dbGroupsBody').addEventListener('click', function(e){
     var b = e.target.closest('button[data-goto]'); if(!b) return;
     var g = dbRows[parseInt(b.dataset.goto, 10)]; if(!g) return;
@@ -124,11 +124,11 @@
   document.getElementById('dbClose').addEventListener('click', function(){ document.getElementById('dbModal').style.display = 'none'; });
   document.getElementById('menuDb').addEventListener('click', function(){ document.getElementById('menuSheet').style.display = 'none'; openDb(); });
 
-  var renameModal = document.getElementById('renameModal');
-  var renameInput = document.getElementById('renameInput');
-  var renameTargetId = null;
-  var pendingPivotX = 0.5, pendingPivotY = 0.5;
-  var pendingVariableFrames = null; // масив {x,w,pivotX,pivotY} під час редагування тайла в renameModal — комітиться в tile.frames лише по "OK"
-  var pivotPickerImg = document.getElementById('pivotPickerImg');
-  var pivotPickerDot = document.getElementById('pivotPickerDot');
-  var pivotPickerWrap = document.getElementById('pivotPickerWrap');
+  renameModal = document.getElementById('renameModal');
+  renameInput = document.getElementById('renameInput');
+  renameTargetId = null;
+  pendingPivotX = 0.5, pendingPivotY = 0.5;
+  pendingVariableFrames = null; // масив {x,w,pivotX,pivotY} під час редагування тайла в renameModal — комітиться в tile.frames лише по "OK"
+  pivotPickerImg = document.getElementById('pivotPickerImg');
+  pivotPickerDot = document.getElementById('pivotPickerDot');
+  pivotPickerWrap = document.getElementById('pivotPickerWrap');

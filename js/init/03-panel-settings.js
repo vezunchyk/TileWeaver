@@ -2,8 +2,8 @@
    Звичайний скрипт: спільна глобальна область з рештою файлів. Виконується при запуску (порядок як у вихідному коді). */
 
   // ---------- Налаштування панелі дій (порядок значків у сітці 3×5) ----------
-  var panelSettingsModal = document.getElementById('panelSettingsModal');
-  var poPick = null;
+  panelSettingsModal = document.getElementById('panelSettingsModal');
+  poPick = null;
   document.getElementById('menuPanelSettings').addEventListener('click', function(){
     menuSheet.style.display='none';
     poPick = null; renderPanelSettings();

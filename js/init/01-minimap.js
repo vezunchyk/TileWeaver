@@ -3,31 +3,31 @@
 
 
   // ---------- мінімапа ----------
-  var showMinimap = false;
-  var minimapDirty = true; // true — треба перемалювати кеш "крапок" (тільки коли карта дійсно змінилась, не щокадру)
-  var minimapEl = document.getElementById('minimapCanvas');
-  var minimapCtx = minimapEl.getContext('2d');
-  var minimapContent = document.createElement('canvas'); // кеш "крапок" обʼєктів — важка частина (прохід по всіх placements), перемальовується рідко
-  var minimapContentCtx = minimapContent.getContext('2d');
-  var minimapBounds = null; // {minX,minY,scale,offX,offY} — переклад світових координат у пікселі мінімапи
-  var MINIMAP_CSS_SIZE = 72;
+  showMinimap = false;
+  minimapDirty = true; // true — треба перемалювати кеш "крапок" (тільки коли карта дійсно змінилась, не щокадру)
+  minimapEl = document.getElementById('minimapCanvas');
+  minimapCtx = minimapEl.getContext('2d');
+  minimapContent = document.createElement('canvas'); // кеш "крапок" обʼєктів — важка частина (прохід по всіх placements), перемальовується рідко
+  minimapContentCtx = minimapContent.getContext('2d');
+  minimapBounds = null; // {minX,minY,scale,offX,offY} — переклад світових координат у пікселі мінімапи
+  MINIMAP_CSS_SIZE = 72;
 
   // Середній колір тайла (для мінімапи) — рахується один раз на tileId і кешується, а не на
   // кожен окремий плейсмент. Без цього всі обʼєкти малювались ОДНИМ узагальненим кольором,
   // тому купа трави (найчастіший тайл) зливалась в суцільну пляму, а будинки/дерева губились
   // серед неї — саме це й виглядало як "тільки трава і то гидким кольором".
-  var tileAvgColorCache = {};
+  tileAvgColorCache = {};
 
   // ---------- модалка "вся карта": зум + панорамування, без миттєвого тапу-телепорту ----------
-  var minimapModal = document.getElementById('minimapModal');
-  var minimapModalCanvas = document.getElementById('minimapModalCanvas');
-  var minimapModalCtx = minimapModalCanvas.getContext('2d');
-  var minimapModalBaseBounds = null; // "вписати всю карту" — точка відліку для zoom/pan
-  var minimapModalZoom = 1;
-  var minimapModalCenter = null;
+  minimapModal = document.getElementById('minimapModal');
+  minimapModalCanvas = document.getElementById('minimapModalCanvas');
+  minimapModalCtx = minimapModalCanvas.getContext('2d');
+  minimapModalBaseBounds = null; // "вписати всю карту" — точка відліку для zoom/pan
+  minimapModalZoom = 1;
+  minimapModalCenter = null;
   // Панорамування прев'ю ВСЕРЕДИНІ модалки (не миттєвий стрибок основної карти по тапу) —
   // "гортаємо" оверв'ю пальцем, основна карта переміщується лише коли явно тиснемо "Перейти".
-  var mmDragging = false, mmLastX=0, mmLastY=0, mmMoved=false;
+  mmDragging = false, mmLastX = 0, mmLastY = 0, mmMoved = false;
   minimapModalCanvas.addEventListener('pointerdown', function(e){
     e.stopPropagation();
     mmDragging = true; mmMoved = false; mmLastX=e.clientX; mmLastY=e.clientY;

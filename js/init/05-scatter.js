@@ -3,8 +3,8 @@
 
 
   // ---------- Розкидати (Клон → 🌿 Розкидати) ----------
-  var scatterSettings = { folderId:null, radius:40, frequency:50, randomFlip:true }; // памʼятається між використаннями за сесію
-  var scatterSettingsModal = document.getElementById('scatterSettingsModal');
+  scatterSettings = { folderId:null, radius:40, frequency:50, randomFlip:true }; // памʼятається між використаннями за сесію
+  scatterSettingsModal = document.getElementById('scatterSettingsModal');
   document.getElementById('scatterSettingsCancel').addEventListener('click', function(){
     scatterSettingsModal.style.display = 'none';
     // Якщо скасував — не лишати "Клон" в режимі, для якого нема підтверджених налаштувань

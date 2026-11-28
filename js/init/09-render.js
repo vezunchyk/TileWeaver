@@ -2,9 +2,9 @@
    Звичайний скрипт: спільна глобальна область з рештою файлів. Виконується при запуску (порядок як у вихідному коді). */
 
   // ---------- Режим ?perf: оверлей із замірами + генератор тестових карт (у звичайному режимі нічого не додає) ----------
-  var placementsEpoch = 0; // +1 при кожній дії/збереженні/відкаті — привід звірити індекс із масивом
-  var idxState = { index:TWSpatial.create(), arr:null, len:-1, epoch:-1, loaded:-1, frames:0 }, perfIdxOn = false;
-  var PERF = /[?&]perf\b/.test(location.search), perfLastVisible = 0, perfFrameMs = 0, perfEl = null, perfAvg = 0, perfLastShow = 0;
+  placementsEpoch = 0; // +1 при кожній дії/збереженні/відкаті — привід звірити індекс із масивом
+  idxState = { index:TWSpatial.create(), arr:null, len:-1, epoch:-1, loaded:-1, frames:0 }, perfIdxOn = false;
+  PERF = /[?&]perf\b/.test(location.search), perfLastVisible = 0, perfFrameMs = 0, perfEl = null, perfAvg = 0, perfLastShow = 0;
   // twPerfFill(n): залити n ромбів першим тайлом палітри (для замірів на 10k/50k/100k). Лише з ?perf.
   if(PERF) window.twPerfFill = function(n){
     var tid = activeTileId || Object.keys(project.tiles)[0]; if(!tid) return 'спочатку додай тайл';
@@ -16,7 +16,7 @@
     project.placements = project.placements.concat(out); minimapDirty = true; render();
     return project.placements.length;
   };
-  var houseViewBarEl = document.getElementById('houseViewBar');
+  houseViewBarEl = document.getElementById('houseViewBar');
   houseViewBarEl.addEventListener('click', function(e){
     var b = e.target.closest('button'); if(!b) return;
     var act = b.dataset.hv;
@@ -26,5 +26,5 @@
     buildHouseViewBar();
     render();
   });
-  var drawingShape = null;
-  var dragPts0 = null;
+  drawingShape = null;
+  dragPts0 = null;

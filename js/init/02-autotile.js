@@ -3,20 +3,20 @@
 
 
   // ---------- Автотайлінг ----------
-  var autotileEditingId = null; // id групи, яку редагуємо (null = нова)
-  var autotileEditingSlots = {}; // {TL,TR,BR,BL,N,E,S,W} -> tileId, стан поточної сесії редагування
-  var autotilePickerTarget = null;
-  var autotileListModal = document.getElementById('autotileListModal');
-  var autotileGroupsList = document.getElementById('autotileGroupsList');
-  var autotileEditorModal = document.getElementById('autotileEditorModal');
-  var autotileGrid3x3 = document.getElementById('autotileGrid3x3');
-  var autotileTilePickerModal = document.getElementById('autotileTilePickerModal');
-  var autotileTilePickerGrid = document.getElementById('autotileTilePickerGrid');
+  autotileEditingId = null; // id групи, яку редагуємо (null = нова)
+  autotileEditingSlots = {}; // {TL,TR,BR,BL,N,E,S,W} -> tileId, стан поточної сесії редагування
+  autotilePickerTarget = null;
+  autotileListModal = document.getElementById('autotileListModal');
+  autotileGroupsList = document.getElementById('autotileGroupsList');
+  autotileEditorModal = document.getElementById('autotileEditorModal');
+  autotileGrid3x3 = document.getElementById('autotileGrid3x3');
+  autotileTilePickerModal = document.getElementById('autotileTilePickerModal');
+  autotileTilePickerGrid = document.getElementById('autotileTilePickerGrid');
 
   // Позиції клітинок 3x3 у порядку рендеру зліва-направо, згори-вниз. Кути = 4 матеріали,
   // краї = перехід між двома СУСІДНІМИ ПО КОЛУ кутами (N між TL/TR, E між TR/BR, S між BR/BL,
   // W між BL/TL), центр — декоративний, нікуди не використовується.
-  var AUTOTILE_SLOTS = [
+  AUTOTILE_SLOTS = [
     {key:'TL', label:'TL', type:'corner'}, {key:'N', label:'N', type:'edge'}, {key:'TR', label:'TR', type:'corner'},
     {key:'W', label:'W', type:'edge'}, {key:null, label:'', type:'center'}, {key:'E', label:'E', type:'edge'},
     {key:'BL', label:'BL', type:'corner'}, {key:'S', label:'S', type:'edge'}, {key:'BR', label:'BR', type:'corner'}

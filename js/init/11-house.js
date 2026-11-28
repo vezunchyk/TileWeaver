@@ -49,7 +49,7 @@
     }
   });
 
-  var shadowFolder = null;
+  shadowFolder = null;
   (function(){
     var el = document.getElementById('shadowPanel');
     el.addEventListener('click', function(e){
@@ -103,14 +103,14 @@
     document.getElementById('toolShadow').addEventListener('click', function(){ tool = 'shadow'; selected = null; cloneAnchor = null; shadowSel = []; shadowFolder = null; updateToolButtons(); render(); });
   })();
 
-  var handleIds = ['hTL','hTR','hBL','hBR'];
-  var extraHandleIds = ['hT','hB','hL','hR','hRatio']; // бокові ручки і замок пропорцій — лише для тіней
-  var rotatingId = null;
+  handleIds = ['hTL','hTR','hBL','hBR'];
+  extraHandleIds = ['hT','hB','hL','hR','hRatio']; // бокові ручки і замок пропорцій — лише для тіней
+  rotatingId = null;
   // ПРИЧИНА БАГУ «панель не гортається»: updateSelPanel() викликається з кожного render() і щоразу
   // перезаписувала selPanel.innerHTML — DOM кнопок пересоздавався (скрол скидався, елемент під пальцем
   // зникав і жест гортання обривався). Тепер: однаковий вміст — DOM не чіпаємо; поки палець на панелі —
   // оновлення відкладається до відпускання; при справжній зміні вмісту scrollTop зберігається.
-  var selPanelTouching = false, selPanelPendingHtml = null;
+  selPanelTouching = false, selPanelPendingHtml = null;
   (function(){
     var desc = Object.getOwnPropertyDescriptor(Element.prototype, 'innerHTML'), lastHtml = null;
     Object.defineProperty(selPanel, 'innerHTML', { configurable:true,
@@ -126,7 +126,7 @@
     selPanel.addEventListener('pointerdown', function(){ selPanelTouching = true; }, true);
     ['pointerup','pointercancel'].forEach(function(ev){ document.addEventListener(ev, function(){ if(selPanelTouching) setTimeout(flush, 60); }, true); });
   })();
-  var selPanelHidden = false;
-  var selPanelCustomPos = (function(){ try{ var v = JSON.parse(localStorage.getItem('tw-selpanel-pos')||'null'); if(v && isFinite(v.left) && isFinite(v.top)) return {left:v.left, top:v.top}; }catch(e){} return null; })(); // {left, top} у px відносно wrap — якщо задано, ігнорує авто-позиціювання під обʼєктом і лишається там для БУДЬ-ЯКОГО наступного виділення, поки користувач не перетягне знову
-  var selPanelJustDragged = false; // щоб клік одразу після утримання-перетягування не перемкнув видимість панелі
-  var EYE_BTN_HTML = '<button data-act="panelEye" title="Тап — сховати панель. Утримати — перетягнути в інше місце (запамʼятається)">👁</button>';
+  selPanelHidden = false;
+  selPanelCustomPos = (function(){ try{ var v = JSON.parse(localStorage.getItem('tw-selpanel-pos')||'null'); if(v && isFinite(v.left) && isFinite(v.top)) return {left:v.left, top:v.top}; }catch(e){} return null; })(); // {left, top} у px відносно wrap — якщо задано, ігнорує авто-позиціювання під обʼєктом і лишається там для БУДЬ-ЯКОГО наступного виділення, поки користувач не перетягне знову
+  selPanelJustDragged = false; // щоб клік одразу після утримання-перетягування не перемкнув видимість панелі
+  EYE_BTN_HTML = '<button data-act="panelEye" title="Тап — сховати панель. Утримати — перетягнути в інше місце (запамʼятається)">👁</button>';

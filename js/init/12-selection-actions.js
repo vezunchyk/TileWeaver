@@ -9,7 +9,7 @@
   // умовних (p.group ? ... : '') шматків HTML) — а порядок серед них однаковий скрізь і
   // зберігається в localStorage, тому "Налаштування панелі" в Меню — одне на все, а не окремо
   // для кожного типу виділення.
-  var PANEL_ACTION_NAMES = {
+  PANEL_ACTION_NAMES = {
     eye:'Показати/сховати панель', anim:'Анімація: вкл/викл', copy:'Копіювати → Вставити', move:'Рука — тягнути виділене',
     layer:'Порядок малювання (число)', zUp:'Підняти на 1', zDown:'Опустити на 1',
     stamp:'Зберегти як штамп', autotile:'Автотайлінг', group:'Створити групу/будинок', houseSettings:'Налаштування будинку',
@@ -18,16 +18,16 @@
     lock:'Заблокувати', unlockGroup:'Розблокувати групу', dup:'Дублювати',
     spawnEdit:'Тип і шанс спавну', ctype:'Тип колізії', cfloor:'Поверх колізії', del:'Видалити'
   };
-  var PANEL_ACTION_ICONS = {
+  PANEL_ACTION_ICONS = {
     eye:'👁', anim:'🎞', copy:'📋', move:'🖐', layer:'🔢', zUp:'▲', zDown:'▼', stamp:'🖨', autotile:'▦',
     group:'🏠', houseSettings:'🏠', selectHouse:'🔎', mirror:'↔', mirrorY:'↕',
     rotate:'↻', precision:'🎯', shadow:'🌑', shadowOval:'⬭', lock:'🔒', unlockGroup:'🔓',
     dup:'⧉', spawnEdit:'✎', ctype:'⛊', del:'🗑'
   };
-  var PANEL_DEFAULT_ORDER = ['eye','anim','copy','move','layer','zUp','zDown','group','houseSettings','mirror','mirrorY','rotate',
+  PANEL_DEFAULT_ORDER = ['eye','anim','copy','move','layer','zUp','zDown','group','houseSettings','mirror','mirrorY','rotate',
     'precision','shadow','shadowOval','stamp','autotile','lock','unlockGroup','selectHouse','dup','spawnEdit','ctype','del'];
   applyPanelSize();
-  var draggingPanelPos = false; // true, поки триває перетягування самої панелі (не обʼєкта) — updateSelPanel() не повинен в цей час перераховувати left/top під обʼєктом
+  draggingPanelPos = false; // true, поки триває перетягування самої панелі (не обʼєкта) — updateSelPanel() не повинен в цей час перераховувати left/top під обʼєктом
   selPanel.addEventListener('pointerdown', function(e){
     var btn = e.target.closest('button[data-act="panelEye"]'); if(!btn) return;
     e.stopPropagation();
